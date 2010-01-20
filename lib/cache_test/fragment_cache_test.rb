@@ -1,4 +1,4 @@
-module Cosinux
+module CacheStore
   module FragmentCacheTest #:nodoc:
     class NoRequestInBlockError < StandardError #:nodoc:
     end
@@ -6,58 +6,6 @@ module Cosinux
     class NoControllerDefinedError < StandardError #:nodoc:
     end
 
-    # This fragment store remembers the fragments that have been 
-    # cached or deleted so that we can use it to check if
-    # caching or expiring of fragment was done or not.
-    class TestStore < ActiveSupport::Cache::MemoryStore #:nodoc:
-      attr_reader :written, :deleted, :deleted_matchers
-      
-      def initialize
-        super
-        @written = []
-        @deleted = []
-        @deleted_matchers = []
-      end
-                    
-      def reset
-        @data.clear
-        @written.clear
-        @deleted.clear
-        @deleted_matchers.clear
-      end
-      
-      def write(name, value, options = nil)
-        @written.push(name)
-        super
-      end
-      
-      def delete(name, options = nil)
-        @deleted.push(name)
-        super
-      end
-      
-      def delete_matched(matcher, options = nil)
-        @deleted_matchers.push(matcher)
-      end
-      
-      def written?(name)
-        @written.include?(name)
-      end
-      
-      def deleted?(name)
-        @deleted.include?(name) || @deleted_matchers.detect { |matcher| name =~ matcher }
-      end
-    end
-    
-    def self.configure #:nodoc:
-      ActionController::Base.perform_caching = true
-      ActionController::Base.cache_store = TestStore.new
-      
-      Test::Unit::TestCase.class_eval do
-        include Assertions
-      end
-    end
-    
     # This module define method to validate the fragment and action caching logic of
     # your application in both integration and functional tests.
     #
@@ -145,11 +93,15 @@ module Cosinux
         
         yield *names
 
-        raise NoRequestInBlockError.new("no request was send while executing block.") if @controller.nil?
-        
         names.each do |name|
-          assert_block("#{name.inspect} is cached after executing block") do
-            cache_store.deleted?(@controller.fragment_cache_key(name))
+          key = if @controller
+            @controller.fragment_cache_key(name)
+          else
+            ActiveSupport::Cache.expand_cache_key( name, :views )
+          end
+          key_list = cache_store.deleted ? cache_store.deleted.join(", ") : 'NIL'
+          assert_block("#{name.inspect} (key: #{key}) is cached after executing block (deleted were: #{key_list})") do
+            cache_store.deleted?( key )
           end
         end
       end

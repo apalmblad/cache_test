@@ -1,10 +1,14 @@
 if RAILS_ENV == "test"
 
-require 'active_support/test_case'
+  require 'active_support/test_case'
+  require 'test_caching_hack'
 
   ActionController::Base.perform_caching = true
-  ActionController::Base.send(:include, Cosinux::PageCacheTest::ClassCachingMethods)
-  ActiveSupport::TestCase.send(:include, Cosinux::PageCacheTest::IntegrationTestMethods)
+  ActiveSupport::TestCase.send(:include, CacheTest::PageCacheTest::IntegrationTestMethods)
+  ActiveSupport::TestCase.send(:include, CacheTest::FragmentCacheTest::Assertions)
+  ActiveSupport::TestCase.send( :define_method, :cache_store ) do
+    ActionController::Base.cache_store
+  end
   
 end
 

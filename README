@@ -8,6 +8,9 @@ logic of your application.
 
 Unpack into the vendor/plugin and that should be it.
 
+Add the following to your config/environments/test.rb:
+config.cache_store = CacheTest::TestStore.new
+
 == 2. Usage
 
 === Testing page caching
