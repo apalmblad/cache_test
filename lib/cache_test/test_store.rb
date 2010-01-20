@@ -1,4 +1,4 @@
-class TestStore < ActiveSupport::Cache::MemoryStore #:nodoc:
+class CacheTest::TestStore < ActiveSupport::Cache::MemoryStore #:nodoc:
   attr_reader :written, :deleted, :deleted_matchers
 
   def initialize
