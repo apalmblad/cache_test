@@ -1,4 +1,4 @@
-module Cosinux #:nodoc:
+module CacheTest #:nodoc:
   module PageCacheTest #:nodoc:
 
     module ClassCachingMethods #:nodoc:
@@ -107,6 +107,13 @@ module Cosinux #:nodoc:
             ActionController::Base.cached?(url)
           end
         end
+      end
+      # Asserts that no page caching happened
+      def assert_no_page_caching( msg = nil )
+        ActionController::Base.reset_cache
+        yield
+        pages = ActionController::Base.test_page_cached
+        assert( pages.empty?, msg || pages.join(", " ) + " were cached." )
       end
 
       # asserts that the list of given url are being expired
