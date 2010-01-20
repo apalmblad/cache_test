@@ -1,4 +1,4 @@
-module CacheStore
+module CacheTest
   module FragmentCacheTest #:nodoc:
     class NoRequestInBlockError < StandardError #:nodoc:
     end
