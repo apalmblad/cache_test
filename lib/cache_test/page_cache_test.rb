@@ -123,7 +123,7 @@ module CacheTest #:nodoc:
         yield *urls
 
         urls.each do |url|
-          assert_block("#{url.inspect} is cached after executing block") do
+          assert_block("#{url.inspect} is cached after executing block, expired pages were: #{ActionController::Base.test_page_expired.inspect}") do
             ActionController::Base.expired?(url)
           end
         end
