@@ -112,9 +112,19 @@ do
   assert_expire_fragments(:controller => "foo", :action => "bar", :action_suffix => "baz") do
     get "/foo/expire"
   end
+== Testing interaction with Rails.cache
 
-In functional test, your not required to give the :controller option.
+To avoid some of the key formatting applied to fragment and other ache keys, you
+can also interact directly with the test cache store.
 
+In the setup method for the test, add a:
+  
+  cache_store.reset
+
+Query the store with:
+
+  cache_store.deleted?( 'key' )
+  cache_store.written?( 'key' )
 == 3. License
 
 This plugin is licensed under the MIT license. Complete license text
