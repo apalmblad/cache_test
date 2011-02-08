@@ -79,9 +79,9 @@ module CacheTest
         raise NoRequestInBlockError.new("no request was send while executing block.") if @controller.nil?
         
         names.each do |name|
-          assert_block("#{name.inspect} is not cached after executing block") do
-            cache_store.written?(@controller.fragment_cache_key(name))
-          end
+          assert( cache_store.written?(@controller.fragment_cache_key(name)), "Did not find \"#{name}\"(#{@controller.fragment_cache_key(name)}) is set of keys cached, cached keys were:#{cache_store.written.map{ |x| "\"#{x}\"" }.join(',')}" )
+          #assert_block("#{name.inspect} is not cached after executing block") do
+          #end
         end
       end
 
