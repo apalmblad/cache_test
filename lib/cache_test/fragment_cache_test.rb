@@ -99,11 +99,14 @@ module CacheTest
           else
             ActiveSupport::Cache.expand_cache_key( name, :views )
           end
-          key_list = cache_store.deleted ? cache_store.deleted.join(", ") : 'NIL'
-          assert_block("#{name.inspect} (key: #{key}) is cached after executing block (deleted were: #{key_list})") do
+          assert_block("#{name.inspect} (key: #{key}) is cached after executing block (deleted were: #{deleted_key_list})") do
             cache_store.deleted?( key )
           end
         end
+      end
+      # ------------------------------------------------------- deleted_key_list
+      def deleted_key_list
+        cache_store.deleted ? cache_store.deleted.join(", ") : 'NIL'
       end
 
       # assert that the given actions are being cached
@@ -133,11 +136,28 @@ module CacheTest
         yield *actions
         
         raise NoRequestInBlockError.new("no request was send while executing block.") if @controller.nil?
-        
+         
         actions.each do |action|
-          action = { :action => action } unless action.is_a?(Hash)
-          assert_block("#{action.inspect} is cached after executing block") do
-            cache_store.deleted?(@controller.fragment_cache_key(action))
+          if action.is_a?( Hash )
+            key = @controller.fragment_cache_key(action)
+            assert_block("#{action.inspect}/#{key} is cached after executing block, deleted were: #{deleted_key_list}") do
+              cache_store.deleted?( key )
+            end
+          else
+            keys = [action]
+            keys << @controller.fragment_cache_key( action )
+            keys << @controller.fragment_cache_key( :action => action )
+            found_key = false
+            keys.each do |x|
+              if cache_store.deleted?( x)
+                found_key = true
+                break
+              end
+            end
+            unless found_key
+              msg = "Did not find #{keys.join(',')}, deleted were: #{deleted_key_list}"
+              assert( false, msg )
+            end
           end
         end
       end
