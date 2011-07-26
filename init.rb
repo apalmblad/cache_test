@@ -1,4 +1,4 @@
-if RAILS_ENV == "test"
+if RAILS_ENV == "test" || RAILS_ENV == 'ci_test'
 
   require 'active_support/test_case'
   require 'test_caching_hack'
