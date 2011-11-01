@@ -1,4 +1,4 @@
-if RAILS_ENV == "test" || RAILS_ENV == 'ci_test'
+if ['test', 'ci_test'].include?( ::Rails.env )
 
   require 'active_support/test_case'
   require 'test_caching_hack'
