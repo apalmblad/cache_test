@@ -119,13 +119,9 @@ module CacheTest #:nodoc:
       # asserts that the list of given url are being expired
       def assert_expire_pages(*urls)
         ActionController::Base.reset_cache
-        
-        yield *urls
-
+        yield
         urls.each do |url|
-          assert_block("#{url.inspect} is cached after executing block, expired pages were: #{ActionController::Base.test_page_expired.inspect}") do
-            ActionController::Base.expired?(url)
-          end
+          assert( ActionController::Base.expired?(url), "#{url.inspect} is cached after executing block, expired pages were: #{ActionController::Base.test_page_expired.inspect}")
         end
       end
     end
