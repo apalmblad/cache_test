@@ -108,6 +108,10 @@ module CacheTest
       def deleted_key_list
         cache_store.deleted ? cache_store.deleted.join(", ") : 'NIL'
       end
+      # ------------------------------------------------------- written_key_list
+      def written_key_list
+        cache_store.written ? cache_store.written.join(", ") : 'NIL'
+      end
 
       # assert that the given actions are being cached
       def assert_cache_actions(*actions)
@@ -120,9 +124,12 @@ module CacheTest
         raise NoRequestInBlockError.new("no request was send while executing block.") if @controller.nil?
         
         actions.each do |action|
-          action = { :action => action } unless action.is_a?(Hash)
-          assert_block("#{action.inspect} is not cached after executing block") do
-            cache_store.written?(@controller.fragment_cache_key(action))
+          if action.is_a?( Hash )
+            assert( cache_store.written?( @controller.fragment_cache_key(action) ), "#{action.inspect} is not cached after executing block" )
+          else
+            unless cache_store.written?(@controller.fragment_cache_key(action))
+              assert( cache_store.written?(@controller.fragment_cache_key( :action => action) ), "#{action.inspect} is not cached after executing block, cached things were: #{written_key_list}")
+            end
           end
         end
       end
