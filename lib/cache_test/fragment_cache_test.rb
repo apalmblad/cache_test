@@ -147,9 +147,7 @@ module CacheTest
         actions.each do |action|
           if action.is_a?( Hash )
             key = @controller.fragment_cache_key(action)
-            assert_block("#{action.inspect}/#{key} is cached after executing block, deleted were: #{deleted_key_list}") do
-              cache_store.deleted?( key )
-            end
+            assert( cache_store.deleted?( key ), "#{action.inspect}/#{key} is cached after executing block, deleted were: #{deleted_key_list}")
           else
             keys = [action]
             keys << @controller.fragment_cache_key( action )
