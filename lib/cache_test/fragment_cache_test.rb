@@ -99,9 +99,7 @@ module CacheTest
           else
             ActiveSupport::Cache.expand_cache_key( name, :views )
           end
-          assert_block("#{name.inspect} (key: #{key}) is cached after executing block (deleted were: #{deleted_key_list})") do
-            cache_store.deleted?( key )
-          end
+          assert( cache_store.deleted?( key ), "#{name.inspect} (key: #{key}) is cached after executing block (deleted were: #{deleted_key_list})")
         end
       end
       # ------------------------------------------------------- deleted_key_list
